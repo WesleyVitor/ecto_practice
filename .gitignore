@@ -26,4 +26,4 @@ school_project-*.tar
 /tmp/
 
 # db
-school_projectdev.db
+school_projectdev.db*
