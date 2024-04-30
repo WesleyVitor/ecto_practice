@@ -1,7 +1,8 @@
 defmodule School.StudentRepository do
   alias School.Student
-  #alias School.Subject
+  alias School.Subject
   alias School.Repo
+  alias School.StudentRepository
 
   import Ecto.Query
 
@@ -51,5 +52,24 @@ defmodule School.StudentRepository do
       {:error, changeset} -> Student.show_errors_by_changeset(changeset)
       _ -> "Student not found"
     end
+  end
+
+  defp update_subject_by_student_changeset_valid(subject, student) when not is_nil(subject) and student.valid? do
+    subject
+      |> Ecto.Changeset.change()
+      |> Ecto.Changeset.put_assoc(:students, [student | subject.students])
+      |> Repo.update()
+  end
+
+  defp update_subject_by_student_changeset_valid(_subject, _student) do
+    {:error, "Subject not found or student is invalid"}
+  end
+  def create_student_by_subject_existed(subject_id, params) do
+    subject = Subject |> Repo.get(subject_id) |> Repo.preload(:students)
+
+    student = Student.changeset(%Student{}, params)
+
+    subject
+      |> update_subject_by_student_changeset_valid(student)
   end
 end
